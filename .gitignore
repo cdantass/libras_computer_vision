@@ -1,12 +1,6 @@
 # Ambiente virtual
 .venv/
 
-# Dataset
-dataset/
-
-# CSV gerado
-hand_landmarks_dataset.csv
-
 # Cache Python
 __pycache__/
 *.pyc
