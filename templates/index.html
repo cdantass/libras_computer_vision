@@ -14,15 +14,88 @@
       padding-top: 30px;
     }
     h1 { margin-bottom: 20px; }
-    img {
+
+    .container {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    img.video {
       border-radius: 12px;
-      max-width: 90vw;
+      max-width: 60vw;
       border: 2px solid #333;
+    }
+
+    .reference-panel {
+      background: #1c1c1c;
+      border-radius: 12px;
+      padding: 20px;
+      width: 260px;
+      text-align: center;
+    }
+
+    .reference-panel h2 {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+
+    .reference-panel img.sign {
+      width: 100%;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    .reference-panel .letter {
+      font-size: 48px;
+      font-weight: bold;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
   <h1>Aprenda Libras - Reconhecimento em Tempo Real</h1>
-  <img src="{{ url_for('video_feed') }}" alt="Video ao vivo">
+
+  <div class="container">
+    <img class="video" src="{{ url_for('video_feed') }}" alt="Video ao vivo">
+
+    <div class="reference-panel">
+      <h2>Como fazer o sinal</h2>
+      <!-- essa imagem/gif é trocada automaticamente pelo script.js
+           conforme a letra atual muda -->
+      <img id="sign_reference" class="sign" src="/static/signs/A.gif" alt="Referência do sinal">
+      <div id="letter_label" class="letter">A</div>
+    </div>
+  </div>
+
+  <script>
+    // Consulta a letra atual no backend a cada 500ms e atualiza a
+    // imagem/gif de referência mostrada ao lado da câmera.
+    async function updateReference() {
+      try {
+        const resp = await fetch("/current_letter");
+        const data = await resp.json();
+
+        const letter = data.letter;
+        const imgEl = document.getElementById("sign_reference");
+        const labelEl = document.getElementById("letter_label");
+
+        labelEl.textContent = letter;
+
+        // só troca o src se a letra mudou, para o gif não reiniciar
+        // o loop toda hora sem necessidade
+        const newSrc = `/static/signs/${letter}.gif`;
+        if (!imgEl.src.endsWith(newSrc)) {
+          imgEl.src = newSrc;
+        }
+      } catch (err) {
+        console.error("Erro ao buscar letra atual:", err);
+      }
+    }
+
+    setInterval(updateReference, 500);
+    updateReference();
+  </script>
 </body>
 </html>
